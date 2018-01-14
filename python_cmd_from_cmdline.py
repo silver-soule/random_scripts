@@ -2,15 +2,20 @@ import subprocess
 import os
 import sys
 
+FNULL = open(os.devnull, 'w')
+    
+def run_subprocess(split_cmd):
+    retcode = subprocess.call(split_cmd, stdout=FNULL, stderr=subprocess.STDOUT)
+    return retcode
+
 def run_cmd(cmd):
     split_cmd = cmd.strip().split(" ")
-    subprocess.call(split_cmd)
+    return run_subprocess(split_cmd)
 
 def run_for_all_subdirs(directory_path,list_of_cmds):
     list_of_subdirs = os.listdir(directory_path)
     for directory in list_of_subdirs:
         os.chdir(directory)
-        print(os.getcwd())
         run_chain_of_commands_one_dir(directory,list_of_cmds)
         os.chdir("../")
 
@@ -22,12 +27,12 @@ def run_for_all_subdirs(directory_path,list_of_cmds):
 
 def run_chain_of_commands_one_dir(dir, list_of_cmds):
     for cmd in list_of_cmds:
-        run_cmd(cmd)
+        return_code = run_cmd(cmd)
+        print(str(return_code) +" : " + cmd + "  " + dir)
 
 def args_to_list_of_commands(args):
     cmds = " ".join(sys.argv[2:])
     list_of_cmds = cmds.split(",")
-    print(list_of_cmds)
     return list_of_cmds
 
 if __name__ =='__main__':
@@ -36,8 +41,5 @@ if __name__ =='__main__':
 
     if sys.argv[2]!=None:
         list_of_cmds = args_to_list_of_commands(sys.argv)
-        print(list_of_cmds)
         curr_dir = os.getcwd()
         run_for_all_subdirs(curr_dir,list_of_cmds)
-
-
